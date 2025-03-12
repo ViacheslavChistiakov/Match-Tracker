@@ -63,7 +63,7 @@ const useFetchMatches = () => {
     fetchData();
   }, []);
 
-  return { matches, loading, error, setLoading, setError, fetchData };
+  return { matches, setMatches, loading, error, setLoading, setError, fetchData };
 };
 
 export default useFetchMatches;

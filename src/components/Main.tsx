@@ -15,18 +15,10 @@ interface MainProps {
 }
 
 const Main: React.FC<MainProps> = ({ loading, error }) => {
-  const { matches } = useFetchMatches();
+  const { matches, setMatches  } = useFetchMatches();
   const [isOpen, setIsOpen] = React.useState<Record<number, boolean>>({});
-  const [matchData, setMatchData] = React.useState<Match[]>([]);
-  const [isFirstRender, setIsFirstRender] = React.useState(true);
   const { sortByStatus } = useMatchStore();
 
-  React.useEffect(() => {
-    if (matches.length > 0) {
-      setMatchData(matches);
-      setIsFirstRender(false);
-    }
-  }, [matches]);
 
   React.useEffect(() => {
     const socket = new WebSocket('wss://app.ftoyd.com/fronttemp-service/ws');
@@ -39,18 +31,24 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'update_matches') {
-          setMatchData((prevMatches: Match[]) => {
-            const updatedMatches: Match[] = data.data || [];
-            return prevMatches.map((match) => {
-              const updatedMatch = updatedMatches.find((item) => item.id === match.id);
-              return updatedMatch ? { ...match, ...updatedMatch } : match;
-            }).concat(
-              updatedMatches.filter((updatedMatch) => 
-                !prevMatches.some((match) => match.id === updatedMatch.id)
-              )
-            );
+          setMatches((prevMatches) => {
+            if (!Array.isArray(data.data)) return prevMatches; // Ensure valid array
+          
+            const updatedMatches = data.data;
+            
+            const newMatchList = [...prevMatches]; // Clone previous state
+            
+            updatedMatches.forEach((updatedMatch: Match) => {
+              const index = newMatchList.findIndex((m) => m.id === updatedMatch.id);
+              if (index !== -1) {
+                newMatchList[index] = { ...newMatchList[index], ...updatedMatch };
+              } else {
+                newMatchList.push(updatedMatch);
+              }
+            });
+          
+            return newMatchList;
           });
-       
         }
       } catch (error) {
         console.warn('Error processing WebSocket data:', error);
@@ -64,7 +62,7 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
     return () => {
       socket.close();
     };
-  }, []);
+  }, [setMatches]);
 
   const toggleOpen = (index: number) => {
     setIsOpen((prev) => ({
@@ -73,9 +71,9 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
     }));
   };
 
-  const filteredMatches = isFirstRender || sortByStatus === 'Все статусы'
-    ? matchData
-    : matchData.filter((match) => match.status === sortByStatus);
+  const filteredMatches = sortByStatus === 'Все статусы'
+    ? matches
+    : matches.filter((match) => match.status === sortByStatus);
 
   return (
     <main className="flex justify-center w-full w-[1000px] mx-auto max-sm:w-full">
