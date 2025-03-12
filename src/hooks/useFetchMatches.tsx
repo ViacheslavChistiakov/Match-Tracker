@@ -1,17 +1,33 @@
 import axios from 'axios';
 import React from 'react';
 
-interface Match {
-  homeTeam: {
-    name: string;
-  };
-  awayTeam: {
-    name: string;
-  };
+export interface Match {
+  id: number;
+  homeTeam: Team;
+  awayTeam: Team;
   homeScore: number;
   awayScore: number;
   status: string;
+  points: number;
+  total_kills: number;
+  place: number;
+  time: string;
+  title: string;
 }
+
+export interface Player {
+  username: string;
+  kills: number;
+}
+
+export interface Team {
+  name: string;
+  players: Player[];
+  place: number;
+  total_kills: number;
+  points: number;
+}
+
 
 const useFetchMatches = () => {
   const [matches, setMatches] = React.useState<Match[]>([]);

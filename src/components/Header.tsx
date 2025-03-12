@@ -2,6 +2,7 @@ import useFetchMatches from '../hooks/useFetchMatches';
 import refreash from '../assets/Refresh.svg';
 import title from '../assets/logo.svg';
 import triangle from '../assets/triangle.svg';
+import { useMatchStore } from '../store/store';
 
 interface HeaderProps {
   error: string | null;
@@ -13,6 +14,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ error, loading, setLoading, setError }) => {
 
  const { fetchData } = useFetchMatches();
+ const { sortByStatus, setSortByStatus } = useMatchStore();
 
   const clickUpdate = async () => {
     setLoading(true);
@@ -29,6 +31,17 @@ const Header: React.FC<HeaderProps> = ({ error, loading, setLoading, setError })
   return (
     <header className="flex justify-between w-full w-[1200px] mx-auto max-sm:w-full items-center py-4 max-lg:flex-col gap-4 items-center">
       <img src={title} alt="title" className="max-sm:w-35" />
+      <select
+        style={{ backgroundColor: '#0B0E12' }}
+        className="w-36 h-10 flex items-center justify-center text-gray-400 rounded-lg cursor-pointer  max-md:w-full"
+        value={sortByStatus}
+        onChange={(e) => setSortByStatus(e.target.value)}
+        >
+        <option value="All">Все статусы</option>
+        <option value="Ongoing">Live</option>
+        <option value="Finished">Finished</option>
+        <option value="Scheduled">Scheduled</option>
+      </select>
       <div className="w-[41%] flex flex-row justify-between max-xl:flex-col-reverse max-lg:w-full items-center gap-4">
         {error ? (
           <div className="w-60 h-11  flex flex-row items-center max-xl-w-full">

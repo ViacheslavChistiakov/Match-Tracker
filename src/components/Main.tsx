@@ -4,7 +4,8 @@ import wait from '../assets/Waiting.svg';
 import profile from '../assets/profile-img.png';
 import dropDown from '../assets/dropDown.svg';
 import React from 'react';
-import useFetchMatches from '../hooks/useFetchMatches';
+import useFetchMatches, { Match } from '../hooks/useFetchMatches';
+import { useMatchStore } from '../store/store';
 import InfoBoard from './InfoBoard';
 
 interface MainProps {
@@ -15,6 +16,58 @@ interface MainProps {
 const Main: React.FC<MainProps> = ({ loading, error }) => {
   const { matches } = useFetchMatches();
   const [isOpen, setIsOpen] = React.useState<Record<number, boolean>>({});
+  const [matchData, setMatchData] = React.useState<Match[]>([]);
+  const [isFirstRender, setIsFirstRender] = React.useState(true);
+  const { sortByStatus } = useMatchStore();
+
+  React.useEffect(() => {
+    if (matches.length > 0 && matchData.length === 0) {
+      setMatchData(matches);
+      setIsFirstRender(false);
+    }
+  }, [matches, matchData]);
+
+  React.useEffect(() => {
+    const socket = new WebSocket('wss://app.ftoyd.com/fronttemp-service/ws');
+
+    socket.onopen = () => {
+      console.log('connected');
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'update_matches') {
+          setMatchData((prevMatches: Match[]) => {
+            const updatedMatches: Match[] = data.data || [];
+            const updatedMatchData = updatedMatches.reduce<Match[]>((acc: Match[], updatedMatch: Match) => {
+              const existingMatchIndex = prevMatches.findIndex(
+                (match) => match.id === updatedMatch.id
+              );
+              if (existingMatchIndex !== -1) {
+                acc[existingMatchIndex] = { ...prevMatches[existingMatchIndex], ...updatedMatch };
+              } else {
+                acc.push(updatedMatch);
+              }
+              return acc;
+            }, [...prevMatches]);
+
+            return updatedMatchData;
+          });
+        }
+      } catch (error) {
+        console.warn('Error processing WebSocket data:', error);
+      }
+    };
+
+    socket.onclose = () => {
+      console.log('disconnected');
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   const toggleOpen = (index: number) => {
     setIsOpen((prev) => ({
@@ -22,6 +75,12 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
       [index]: !prev[index],
     }));
   };
+
+  const filteredMatches = isFirstRender || sortByStatus === 'Все статусы'
+    ? matchData
+    : matchData.filter((match) => match.status === sortByStatus);
+
+
 
   return (
     <main className="flex justify-center w-full w-[1000px] mx-auto max-sm:w-full">
@@ -31,7 +90,7 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
         ) : error ? (
           <p className="text-white flex justify-around items-center">{error}</p>
         ) : (
-          matches.map((match, index) => (
+          filteredMatches.map((match, index) => (
             <li
               key={index}
               style={{ backgroundColor: '#0B0E12' }}
@@ -68,11 +127,11 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-row items-center gap-4 relative left-30 max-sm:w-25">
+              <div className="flex flex-row items-center gap-4 relative left-30 max-sm:w-25 max-lg:left-20 max-md:left-14 max-sm:left-5">
                 <h3 className="text-white">{match.awayTeam.name}</h3>
                 <img src={profile} alt="profile-logo" />
               </div>
-              <button onClick={() => toggleOpen(index)} className="cursor-pointer">
+              <button onClick={() => toggleOpen(index)} className="cursor-pointer max-lg:relative left-3 max-md:flex items-center justify-center right-10">
                 <img
                   className={`transform transition-transform duration-300 ${
                     isOpen[index] ? 'rotate-180' : 'rotate-0'
@@ -83,9 +142,8 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
               </button>
               </div>
               {isOpen[index] && (
-                <div className="w-full h-28 flex flex-row text-white p-4 mt-2 rounded-lg gap-9">
-                    <InfoBoard />
-                    <InfoBoard />
+                <div className="w-full h-28 flex flex-row text-white p-4 mt-2 rounded-lg gap-9 max-md:mb-4 relative bottom-6 max-sm:gap-3 right-3 max-xs:w-full">
+                    <InfoBoard match={match} />
                 </div>
               )}
             </li>
