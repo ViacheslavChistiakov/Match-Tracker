@@ -37,10 +37,10 @@ const Header: React.FC<HeaderProps> = ({ error, loading, setLoading, setError })
         value={sortByStatus}
         onChange={(e) => setSortByStatus(e.target.value)}
         >
-        <option value="All">Все статусы</option>
-        <option value="Ongoing">Live</option>
-        <option value="Finished">Finished</option>
-        <option value="Scheduled">Scheduled</option>
+        <option className="w-full" value="All">Все статусы</option>
+        <option className="w-full" value="Ongoing">Live</option>
+        <option  className="w-full"value="Finished">Finished</option>
+        <option className="w-full" value="Scheduled">Scheduled</option>
       </select>
       <div className="w-[41%] flex flex-row justify-between max-xl:flex-col-reverse max-lg:w-full items-center gap-4">
         {error ? (

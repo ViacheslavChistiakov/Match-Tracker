@@ -96,7 +96,7 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
               style={{ backgroundColor: '#0B0E12' }}
               className="w-full h-auto flex flex-col items-center justify-between rounded-lg px-4 max-sm:w-full "
               >
-              <div className="w-full h-20 flex flex-row items-center justify-between">
+              <div className="w-full  h-20 flex flex-row items-center justify-between">
               <div className="flex justify-between flex-row items-center w-[54%]">
                 <div className="flex flex-row items-center gap-4 max-sm:w-20">
                   <img src={profile} alt="profile-logo" />
@@ -142,7 +142,7 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
               </button>
               </div>
               {isOpen[index] && (
-                <div className="w-full h-28 flex flex-row text-white p-4 mt-2 rounded-lg gap-9 max-md:mb-4 relative bottom-6 max-sm:gap-3 right-3 max-xs:w-full">
+                <div className="w-full h-28 flex flex-row text-white p-4 mt-2 rounded-lg gap-9 max-md:mb-4 relative bottom-6 max-sm:gap-3 right-3 max-xs:w-full h-auto flex-col">
                     <InfoBoard match={match} />
                 </div>
               )}

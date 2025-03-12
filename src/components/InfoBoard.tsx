@@ -23,13 +23,14 @@ interface MatchListProps {
 const InfoBoard: React.FC<MatchListProps> = ({ match }) => {
   return (
     <>
+    <div className="w-full h-auto flex flex-row justify-between max-sm:flex-col gap-5">
     <div className="w-[50%] h-auto flex flex-col items-center max-md:w-full max-xs:w-full">
       <ul className="w-full flex flex-row justify-between gap-5 max-sm:gap-1">
         {match.homeTeam.players.slice(0, 3).map((player, index) => (
           <li
             key={index}
             style={{ backgroundColor: '#101318' }}
-            className="w-[33%] flex flex-row items-center justify-between rounded-lg max-md:flex-col w-full max-xs:w-[100%]">
+            className="w-[33%] flex flex-row items-center justify-between rounded-lg max-md:flex-col w-full">
             <div className="flex flex-row items-center justify-between max-lg:flex-col">
               <div className="flex flex-row items-center">
               <img src={user} alt="user" />
@@ -103,7 +104,8 @@ const InfoBoard: React.FC<MatchListProps> = ({ match }) => {
           </li>
         </ul>
       </div>
-      </>
+    </div>
+    </>
   );
 };
 
