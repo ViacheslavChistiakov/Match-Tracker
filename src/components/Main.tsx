@@ -40,19 +40,14 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
         if (data.type === 'update_matches') {
           setMatchData((prevMatches: Match[]) => {
             const updatedMatches: Match[] = data.data || [];
-            const updatedMatchData = updatedMatches.reduce<Match[]>((acc: Match[], updatedMatch: Match) => {
-              const existingMatchIndex = prevMatches.findIndex(
-                (match) => match.id === updatedMatch.id
-              );
-              if (existingMatchIndex !== -1) {
-                acc[existingMatchIndex] = { ...prevMatches[existingMatchIndex], ...updatedMatch };
-              } else {
-                acc.push(updatedMatch);
-              }
-              return acc;
-            }, [...prevMatches]);
-
-            return updatedMatchData;
+            return prevMatches.map((match) => {
+              const updatedMatch = updatedMatches.find((u) => u.id === match.id);
+              return updatedMatch ? { ...match, ...updatedMatch } : match;
+            }).concat(
+              updatedMatches.filter((updatedMatch) => 
+                !prevMatches.some((match) => match.id === updatedMatch.id)
+              )
+            );
           });
         }
       } catch (error) {
