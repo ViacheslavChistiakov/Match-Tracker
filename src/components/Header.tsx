@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ error, loading, setLoading, setError })
         value={sortByStatus}
         onChange={(e) => setSortByStatus(e.target.value)}
         >
-        <option className="w-full" value="All">Все статусы</option>
+        <option className="w-full" value="Все статусы">Все статусы</option>
         <option className="w-full" value="Ongoing">Live</option>
         <option  className="w-full"value="Finished">Finished</option>
         <option className="w-full" value="Scheduled">Scheduled</option>

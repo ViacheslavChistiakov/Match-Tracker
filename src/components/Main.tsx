@@ -3,6 +3,7 @@ import finish from '../assets/Finished.svg';
 import wait from '../assets/Waiting.svg';
 import profile from '../assets/profile-img.png';
 import dropDown from '../assets/dropDown.svg';
+import sad from '../assets/sad.png';
 import React from 'react';
 import useFetchMatches, { Match } from '../hooks/useFetchMatches';
 import { useMatchStore } from '../store/store';
@@ -21,11 +22,11 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
   const { sortByStatus } = useMatchStore();
 
   React.useEffect(() => {
-    if (matches.length > 0 && matchData.length === 0) {
+    if (matches.length > 0) {
       setMatchData(matches);
       setIsFirstRender(false);
     }
-  }, [matches, matchData]);
+  }, [matches]);
 
   React.useEffect(() => {
     const socket = new WebSocket('wss://app.ftoyd.com/fronttemp-service/ws');
@@ -41,7 +42,7 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
           setMatchData((prevMatches: Match[]) => {
             const updatedMatches: Match[] = data.data || [];
             return prevMatches.map((match) => {
-              const updatedMatch = updatedMatches.find((u) => u.id === match.id);
+              const updatedMatch = updatedMatches.find((item) => item.id === match.id);
               return updatedMatch ? { ...match, ...updatedMatch } : match;
             }).concat(
               updatedMatches.filter((updatedMatch) => 
@@ -49,6 +50,7 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
               )
             );
           });
+       
         }
       } catch (error) {
         console.warn('Error processing WebSocket data:', error);
@@ -75,8 +77,6 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
     ? matchData
     : matchData.filter((match) => match.status === sortByStatus);
 
-
-
   return (
     <main className="flex justify-center w-full w-[1000px] mx-auto max-sm:w-full">
       <ul className="w-full h-auto flex flex-col gap-4 mt-4 pt-8 max-xl:items-center">
@@ -84,6 +84,11 @@ const Main: React.FC<MainProps> = ({ loading, error }) => {
           <p className="text-white flex justify-around items-center">Загрузка...</p>
         ) : error ? (
           <p className="text-white flex justify-around items-center">{error}</p>
+        ) : filteredMatches.length === 0 ? ( // Check if no matches after filtering
+          <div className="flex flex- justify-center items-center w-full h-40">
+            <img src={sad} alt="Sad smiley" className="w-12 h-12" />
+            <p className="text-white text-xl ml-2">Нет матчей для выбранного статуса</p>
+          </div>
         ) : (
           filteredMatches.map((match, index) => (
             <li
